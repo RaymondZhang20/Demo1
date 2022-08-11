@@ -36,10 +36,10 @@ public class Bandit : MonoBehaviour {
         if (!m_isDead) {
             Alive();
         } else if (Input.GetKeyDown("e")) {
+            transform.position = new Vector2(-15, -1.1f);
             filter.color = new Color(0,0,0,0);
-            health = 10;
-            m_animator.SetTrigger("Recover");
-            m_isDead = !m_isDead;
+            health = HealthBar.maxHealth;
+            Invoke("SetRecover", 2);
         }
         if (health < 0) {
             health = 0;
@@ -114,6 +114,11 @@ public class Bandit : MonoBehaviour {
         m_attacking = false;
     }
 
+    void SetRecover() {
+        m_animator.SetTrigger("Recover");
+        m_isDead = !m_isDead;
+    }
+
     public void TakeDamagePlayer(int damage)
     {
         if (m_combatIdle == false) {
@@ -129,5 +134,9 @@ public class Bandit : MonoBehaviour {
             m_animator.SetTrigger("Death");
             filter.color = deadFilter;
         }
+    }
+
+    public Vector2 getPos() {
+        return (Vector2)transform.localPosition;
     }
 }

@@ -21,6 +21,7 @@ public abstract class Enemy : MonoBehaviour
     private Animator anim;
     private PolygonCollider2D coll2D;
     private bool isAttack = false;
+    private int maxHealth;
 
     private SpriteRenderer sr;
     private Color originalColor;
@@ -36,6 +37,7 @@ public abstract class Enemy : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Bandit>();
         anim = GetComponent<Animator>();
         coll2D = transform.Find("EnemyAttack").GetComponent<PolygonCollider2D>();
+        maxHealth = health;
     }
 
     // Update is called once per frame
@@ -50,7 +52,11 @@ public abstract class Enemy : MonoBehaviour
             transform.position = Vector2.MoveTowards(transform.position, movePos.position, speed * Time.deltaTime);
             if(Vector2.Distance(transform.position, movePos.position) < Mathf.Epsilon) {
                 if(waitTime <= 0) {
-                    movePos.position = GetRandomPos();
+                    if (player.getPos().x >= leftDownPos.position.x && player.getPos().x <= rightUpPos.position.x && health > maxHealth/2) {
+                        movePos.position = GetPlayerPos();
+                    } else {
+                        movePos.position = GetRandomPos();
+                    }
                     waitTime = startWaitTime;
                 } else {
                     waitTime -= Time.deltaTime;
@@ -77,7 +83,9 @@ public abstract class Enemy : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        Attack();
+        if (!player.m_isDead) {
+            Attack();
+        }
     }
 
     void Attack()
@@ -105,6 +113,15 @@ public abstract class Enemy : MonoBehaviour
     {
         Vector2 randPos = new Vector2(Random.Range(leftDownPos.position.x, rightUpPos.position.x), Random.Range(leftDownPos.position.y, rightUpPos.position.y));
         return randPos;
+    }
+
+    Vector2 GetPlayerPos()
+    {
+        if (leftDownPos.position.y == rightUpPos.position.y) {
+            return new Vector2(player.getPos().x, rightUpPos.position.y);
+        } else {
+            return new Vector2(player.getPos().x, player.getPos().y + 1);
+        }
     }
 
     public void DamagePlayer() {
